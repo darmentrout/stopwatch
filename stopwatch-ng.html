@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>angularJS stopwatch</title>
+	<meta name="description" content="stopwatch.">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0-rc.1/angular.min.js"></script>
+	<link href='https://fonts.googleapis.com/css?family=VT323' rel='stylesheet' type='text/css'>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		body,
+		button {
+			background-color: #000;
+			color: #33FE33;
+			font-family: 'VT323', monospace;
+		}
+		button {
+		    border: 2px solid #33fe33;
+		    padding: .5em 1em;	
+		    font-size: 1.1em;
+		    width: 75px;
+		    max-width: 75px;
+		}
+		button:focus {
+			outline: none;
+			font-weight: bold;
+		}
+		div button:nth-child(even) {
+			margin-left: 15px;
+		}
+		#main {
+			width: 400px;
+			margin: 50px auto;
+			text-align: center;
+		}
+		#main div:nth-child(odd) {
+			margin-top: 15px;
+		}
+		p {
+			font-size: 1.2em;
+		}
+	</style>
+</head>
+<body ng-app="swApp">
+
+<div id="main" ng-controller="swCtrl" ng-init="seconds = 0; minutes = 0; hours = 0; times = [];">
+
+	<h1 id="timer"><span id="h">{{hours | leadingZero}}</span> : <span id="m">{{minutes | leadingZero}}</span> : <span id="s">{{seconds | leadingZero}}</span></h1>
+
+	<div>
+		<button id="start" ng-click="start();">start</button><button id="stop" ng-click="stop();">stop</button>
+	</div>
+
+	<div>
+		<button id="reset" ng-click="reset();">reset</button><button id="save" ng-click="save()">save</button>
+	</div>
+
+	<br>
+
+	<p ng-repeat="time in times track by $index">{{time}}</p>
+
+</div>
+
+
+<script>
+
+var app = angular.module('swApp', [])
+
+.controller('swCtrl', function($scope, $interval){
+
+	var t = 0;
+
+	$scope.start = function() {
+		clock = $interval(function(){
+			$scope.seconds++;
+			if ( $scope.seconds > 59 ) {
+				$scope.seconds = 1;
+				$scope.minutes++;
+			}
+			if ( $scope.minutes > 59 ) {
+				$scope.minutes = 1;
+				$scope.hours++;
+			}
+		}, 1000);
+	}
+
+	$scope.stop = function() {
+		$interval.cancel(clock);
+	}
+
+	$scope.reset = function() {
+		$scope.stop();
+		$scope.seconds = 0;
+		$scope.minutes = 0;
+		$scope.hours = 0;
+	}
+
+	$scope.save = function() {
+		var timeArray = [$scope.hours, $scope.minutes, $scope.seconds];console.log(timeArray);
+		for (i=0; i<timeArray.length; i++) {
+			if ( timeArray[i] < 10 ) {
+				timeArray[i] = '0' + timeArray[i];
+			}
+		}
+		timeArray = timeArray.join(' : ');
+		var timestamp = 't' + t + ' = ' + timeArray;
+		$scope.times.push(timestamp);
+	}
+
+})
+
+.filter('leadingZero', function(){
+
+	return function(x) {
+		if ( x < 10 ) {
+			x = '0' + x;
+		}
+		return x;
+	}
+
+});
+
+</script>
+
+
+</body>
+</html>
